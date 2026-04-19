@@ -1,6 +1,6 @@
 # YuWen Robot Soul - Poetic Interaction Engine (Grade 1)
 
-![Logo](./assets/logo_ts.webp)
+<img src="./assets/logo_ts.webp" width="120" alt="SHENSIST Logo">
 
 **YuWen Robot Soul** is a premium, fairytale sci-fi educational interface designed for Grade 1 students to interact with Tang Poetry, starting with the classic 《静夜思》(Jing Ye Si).
 
