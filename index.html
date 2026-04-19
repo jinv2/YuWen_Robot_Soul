@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>神思AUI · 语文机器人灵魂</title>
+    <style>
+        body { 
+            background: #0d0d2b; /* 深邃星空蓝 */
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            animation: stars-move 100s linear infinite;
+            color: #fff; 
+            font-family: "Rounded Mplus 1c", "PingFang SC", sans-serif; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; overflow: hidden; 
+        }
+
+        @keyframes stars-move { from { background-position: 0 0; } to { background-position: 1000px 500px; } }
+
+        #robot-stage { 
+            width: 320px; height: 320px; 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(15px);
+            border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            position: relative; transition: all 1s; 
+            box-shadow: 0 0 50px rgba(100, 200, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.2);
+            animation: robot-float 4s infinite ease-in-out;
+            z-index: 5;
+        }
+
+        /* 全息环 */
+        .holo-ring {
+            position: absolute;
+            width: 380px; height: 380px;
+            border: 2px dashed rgba(0, 255, 200, 0.3);
+            border-radius: 50%;
+            animation: rotate 10s linear infinite;
+            pointer-events: none;
+        }
+        .holo-ring::before {
+            content: "✦"; position: absolute; top: -10px; left: 50%; color: #00ffcc;
+        }
+        .holo-ring-inner {
+            width: 340px; height: 340px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: rotate-reverse 15s linear infinite;
+        }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes rotate-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        @keyframes robot-float { 0%, 100% { transform: translateY(0) scale(1.02); } 50% { transform: translateY(-20px) scale(1); } }
+        
+        #robot-stage::before { content: "👑"; position: absolute; top: -45px; font-size: 2.5rem; filter: drop-shadow(0 0 10px gold); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        #robot-eye { 
+            width: 60px; height: 60px; 
+            background: radial-gradient(#fff, #b2fefa); 
+            border: 5px solid rgba(255,255,255,0.5);
+            border-radius: 50%; 
+            box-shadow: 0 0 30px rgba(100,255,255,0.8); 
+            transition: all 0.5s; 
+            position: relative;
+            overflow: hidden;
+        }
+        #robot-eye::after { 
+            content: ""; position: absolute; 
+            width: 20px; height: 20px; 
+            background: #2c3e50; border-radius: 50%; 
+            top: 15px; left: 20px;
+            box-shadow: inset -2px -2px 5px rgba(255,255,255,0.5);
+            transition: 0.3s;
+        }
+
+        .cheek { position: absolute; width: 30px; height: 20px; background: radial-gradient(rgba(255, 150, 200, 0.8), transparent); border-radius: 50%; top: 180px; filter: blur(2px); transition: 0.5s; }
+        #cheek-l { left: 60px; }
+        #cheek-r { right: 60px; }
+        
+        #robot-mouth { 
+            position: absolute; bottom: 70px; 
+            width: 50px; height: 25px; 
+            border: 5px solid #fff; 
+            border-top: none; 
+            border-radius: 0 0 50px 50px; 
+            transition: all 0.5s; 
+            filter: drop-shadow(0 0 5px #fff);
+        }
+
+        .poem-btn { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 2px solid rgba(255,255,255,0.3); 
+            color: #fff; 
+            padding: 12px 25px; margin: 8px; cursor: pointer; 
+            transition: 0.4s; border-radius: 20px; 
+            font-size: 1.1rem; font-weight: bold;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+        .poem-btn:hover { 
+            background: rgba(100, 255, 255, 0.3); 
+            border-color: #00ffcc;
+            transform: scale(1.1); 
+            box-shadow: 0 0 25px rgba(0, 255, 200, 0.5);
+        }
+
+        /* 品牌恢复 Original Top-Left Layout */
+        header {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            pointer-events: auto;
+            cursor: pointer;
+            overflow: hidden; /* 隐藏超出圆圈的部分 */
+            border-radius: 50%;
+        }
+
+        .header-logo { 
+            width: 120%; /* 放大图片以填满并稍微超出以消除边框感 */
+            height: 120%;
+            object-fit: cover;
+            filter: drop-shadow(0 0 5px #fff); 
+            border-radius: 50%;
+        }
+
+        .brand-text { display: flex; flex-direction: column; }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 255, 200, 0.8);
+            margin: 0;
+            pointer-events: none;
+        }
+
+        .poem-title {
+            position: absolute;
+            top: 25px; /* 向上移动，腾出空间给皇冠 */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 15px;
+            text-shadow: 0 0 20px rgba(0, 255, 200, 0.8);
+            z-index: 25;
+            pointer-events: none;
+            animation: title-float 4s infinite ease-in-out;
+        }
+
+        @keyframes title-float { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -10px); } }
+
+        /* 月亮 Atmosphere Moon (增加纹理感) */
+        #moon {
+            position: absolute;
+            top: 40px;
+            right: 80px;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #fff, #f0f0f0 60%, #ddd 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.8), 0 0 120px rgba(255, 255, 255, 0.4);
+            z-index: 10;
+            animation: moon-glow 6s infinite ease-in-out;
+        }
+        #moon::after {
+            content: ""; position: absolute; top: 20%; left: 20%; width: 15px; height: 15px;
+            background: rgba(0,0,0,0.05); border-radius: 50%; box-shadow: 20px 10px 0 rgba(0,0,0,0.05), 10px 25px 0 rgba(0,0,0,0.05);
+        }
+        @keyframes moon-glow { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+
+        /* 宇宙飞船/火箭 Upward Rocket */
+        /* 宇宙飞船/火箭 Upward Rocket (垂直修正) */
+        #spaceship {
+            position: absolute;
+            width: 15px;
+            height: 35px;
+            background: #fff;
+            border-radius: 50% 50% 10% 10%;
+            z-index: 40;
+            box-shadow: 0 0 20px #fff, 0 0 10px #00ffcc;
+            animation: cruise 10s infinite ease-in;
+            pointer-events: none;
+        }
+        #spaceship::after {
+            content: ""; position: absolute; bottom: -15px; left: 2px;
+            width: 10px; height: 25px;
+            background: linear-gradient(to bottom, #00ffcc, #ff3f34, transparent);
+            filter: blur(4px);
+            animation: engine-flare 0.1s infinite alternate;
+        }
+        @keyframes cruise {
+            0% { transform: translate(15vw, 105vh); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(15vw, -15vh); opacity: 0; }
+        }
+        @keyframes engine-flare { from { opacity: 0.8; transform: scaleY(0.9); } to { opacity: 1; transform: scaleY(1.5); } }
+
+        /* 移动端自适应 Mobile Responsive */
+        @media (max-width: 768px) {
+            .poem-title { font-size: 2rem; top: 80px; letter-spacing: 5px; width: 90%; text-align: center; }
+            #robot-stage { width: 220px; height: 220px; }
+            .holo-ring { width: 260px; height: 260px; }
+            .holo-ring-inner { width: 240px; height: 240px; }
+            #robot-eye { width: 40px; height: 40px; }
+            #robot-eye::after { width: 12px; height: 12px; top: 10px; left: 14px; }
+            .cheek { top: 130px; width: 20px; height: 15px; }
+            #robot-mouth { bottom: 50px; }
+            
+            #soul-display { 
+                margin-top: 40px; 
+                font-size: 1.1rem; 
+                padding: 10px 30px; 
+                width: 80%;
+                text-align: center;
+            }
+
+            #controls { 
+                flex-wrap: wrap; 
+                justify-content: center; 
+                gap: 10px; 
+                margin-top: 25px; 
+                width: 95%;
+            }
+            .poem-btn { padding: 10px 15px; font-size: 0.9rem; margin: 4px; }
+
+            header { top: 10px; left: 10px; scale: 0.8; transform-origin: top left; }
+            #moon { width: 50px; height: 50px; right: 20px; top: 20px; }
+            #spaceship { width: 10px; height: 25px; }
+            .nature-decor { height: 80px; }
+        }
+
+        /* 间距与互动块 Spacing & Interactive Blocks */
+        #soul-display { 
+            margin-top: 70px; 
+            font-size: 1.6rem; 
+            font-weight: bold; 
+            color: #00ffcc;
+            background: linear-gradient(90deg, transparent, rgba(0,255,200,0.2), transparent);
+            padding: 12px 60px; 
+            border-radius: 30px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0,255,200,0.5);
+        }
+
+        #controls {
+            margin-top: 45px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-copyright { 
+            position: absolute; 
+            bottom: 10px; 
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.85rem; 
+            color: rgba(255,255,255,0.4); 
+            letter-spacing: 2px; 
+            z-index: 100; /* 确保在最上层 */
+            text-shadow: 0 0 5px #000;
+            white-space: nowrap;
+        }
+
+        /* 自然装饰 Nature Decor (移除黑边，确保透明) */
+        .nature-decor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 120px; /* 稍微调低高度 */
+            background-color: transparent !important;
+            background-image: url('./assets/nature.png');
+            background-size: auto 100%; /* 高度填满，宽度自适应 */
+            background-repeat: repeat-x;
+            background-position: bottom center;
+            z-index: 15;
+            pointer-events: none;
+            animation: sway 5s infinite ease-in-out;
+            /* 移除可能产生黑边的阴影或滤镜 */
+            filter: none;
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: scaleY(1) rotate(0deg); }
+            50% { transform: scaleY(1.05) rotate(1deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="moon"></div>
+    <div id="spaceship"></div>
+    <header>
+        <a href="https://shensist.top/" target="_blank" class="logo-container">
+            <img src="./assets/logo_ts.webp" alt="SHENSIST" class="header-logo">
+        </a>
+        <div class="brand-text">
+            <h1 class="page-title">神思 AUI · 语文机器人</h1>
+        </div>
+    </header>
+
+    <h2 class="poem-title">《静夜思》</h2>
+    
+    <div class="holo-ring"></div>
+    <div class="holo-ring holo-ring-inner"></div>
+    <div id="robot-stage">
+        <div id="cheek-l" class="cheek"></div>
+        <div id="cheek-r" class="cheek"></div>
+        <div id="robot-eye"></div>
+        <div id="robot-mouth"></div>
+    </div>
+    <div id="soul-display">等待指令...</div>
+    <div id="controls">
+        <button class="poem-btn" onclick="act('light')">床前明月光 (环境)</button>
+        <button class="poem-btn" onclick="act('doubt')">疑是地上霜 (错觉)</button>
+        <button class="poem-btn" onclick="act('up')">举头望明月 (动作)</button>
+        <button class="poem-btn" onclick="act('down')">低头思故乡 (灵魂)</button>
+    </div>
+
+    <div class="nature-decor"></div>
+    <audio id="bgm" loop>
+        <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_736270e5d0.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="footer-copyright">
+        © 2026 SHENSIST MATRIX · SYSTEM_PROTOCOL_V5.0
+    </div>
+    
+    <button id="bgm-toggle" style="position: absolute; bottom: 50px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid #00ffcc; color: #00ffcc; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; z-index: 50;" onclick="toggleBGM()">🎵</button>
+
+    <script>
+        function toggleBGM() {
+            const bgm = document.getElementById('bgm');
+            if (bgm.paused) { bgm.play(); document.getElementById('bgm-toggle').innerText = '⏸️'; }
+            else { bgm.pause(); document.getElementById('bgm-toggle').innerText = '🎵'; }
+        }
+
+        // 音效引擎 AudioCore
+        const AudioCore = {
+            ctx: null,
+            init() {
+                if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            },
+            playTwinkle() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1760, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.5);
+            },
+            playResonance() {
+                this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 1);
+            }
+        };
+
+        let currentVoice = null;
+        function playVoice(filename) {
+            if (currentVoice) {
+                currentVoice.pause();
+                currentVoice.currentTime = 0;
+            }
+            currentVoice = new Audio(`./assets/${filename}.wav`);
+            currentVoice.play();
+        }
+
+        const eye = document.getElementById('robot-eye');
+        const stage = document.getElementById('robot-stage');
+        const display = document.getElementById('soul-display');
+
+        let dwellStart = 0;
+        const mouth = document.getElementById('robot-mouth');
+
+        function act(state) {
+            AudioCore.playTwinkle();
+            
+            // 结束上一个状态的记录 (如果有)
+            if (dwellStart > 0) {
+                let duration = (Date.now() - dwellStart) / 1000;
+                console.log(`[共鸣反馈] 学生在【故乡】档案中驻留了 ${duration.toFixed(1)} 秒`);
+                dwellStart = 0;
+            }
+
+            // 重置
+            stage.style.backgroundImage = "none";
+            stage.style.boxShadow = "none";
+            stage.style.border = "8px solid rgba(255, 255, 255, 0.8)";
+            eye.style.opacity = "1";
+            eye.style.background = "#fff";
+            stage.style.transform = "translateY(0)";
+            mouth.style.width = "40px";
+            mouth.style.height = "20px";
+            mouth.style.borderRadius = "0 0 40px 40px";
+            mouth.style.border = "4px solid #fff";
+            document.querySelectorAll('.cheek').forEach(c => c.style.opacity = "1");
+
+            switch(state) {
+                case 'light':
+                    stage.style.boxShadow = "0 0 100px #fff";
+                    display.innerText = "小机器人：哇！好亮的月亮呀～";
+                    playVoice("床前明月光");
+                    mouth.style.width = "40px";
+                    mouth.style.height = "40px";
+                    mouth.style.borderRadius = "50%";
+                    setTimeout(() => {
+                        stage.style.backgroundImage = "url('./assets/moonlight.jpg')";
+                        stage.style.backgroundSize = "cover";
+                        stage.style.border = "none";
+                    }, 500);
+                    break;
+                case 'doubt':
+                    eye.style.background = "#ffd32a";
+                    display.innerText = "小机器人：咦？地上是结霜了吗？";
+                    playVoice("疑是地上霜");
+                    mouth.style.width = "30px";
+                    mouth.style.height = "4px";
+                    mouth.style.borderRadius = "2px";
+                    setTimeout(() => {
+                        stage.style.backgroundImage = "url('./assets/frost.jpg')";
+                        stage.style.backgroundSize = "cover";
+                        stage.style.border = "none";
+                    }, 500);
+                    break;
+                case 'up':
+                    display.innerText = "小机器人：我们一起看月亮吧！";
+                    playVoice("举头望明月");
+                    mouth.style.width = "50px";
+                    mouth.style.height = "15px";
+                    mouth.style.borderRadius = "40px 40px 0 0";
+                    setTimeout(() => {
+                        stage.style.backgroundImage = "url('./assets/moon.jpg')";
+                        stage.style.backgroundSize = "cover";
+                        stage.style.border = "none";
+                    }, 500);
+                    break;
+                case 'down':
+                    eye.style.background = "#fffa65";
+                    display.innerText = "小机器人：想家了，看看我的档案...";
+                    playVoice("低头思故乡");
+                    mouth.style.width = "60px";
+                    mouth.style.height = "30px";
+                    mouth.style.borderRadius = "0 0 60px 60px";
+                    
+                    dwellStart = Date.now();
+                    AudioCore.playResonance();
+                    setTimeout(() => {
+                        stage.style.backgroundImage = "url('./assets/hometown.jpg')";
+                        stage.style.backgroundSize = "cover";
+                        stage.style.border = "none";
+                        eye.style.opacity = "0.7";
+                    }, 1000);
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
